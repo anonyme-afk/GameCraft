@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self' data: blob: https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com http://localhost:11434 http://localhost:1234 ws://localhost:* http://localhost:*; font-src 'self' data:">
+<title>Studio — création de jeux assistée par IA</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+<header id="dsk-titlebar" class="dsk-titlebar" hidden>
+  <div class="dsk-drag">
+    <img src="assets/icon.png" class="dsk-icon" alt="" onerror="this.style.display='none'">
+    <span>GameCraft Studio</span>
+    <span class="dsk-sub" id="dsk-sub"></span>
+  </div>
+  <div class="dsk-controls">
+    <button class="dsk-btn" id="dsk-min" title="Réduire"><svg width="10" height="1" viewBox="0 0 10 1"><path d="M0 0h10v1H0z" fill="currentColor"/></svg></button>
+    <button class="dsk-btn" id="dsk-max" title="Agrandir / Restaurer"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="9" height="9"/></svg></button>
+    <button class="dsk-btn dsk-close" id="dsk-close" title="Fermer"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M0 0l10 10M10 0L0 10" stroke="currentColor" stroke-width="1.2"/></svg></button>
+  </div>
+</header>
+<div id="top"><nav id="activity" aria-label="Navigation"></nav><main id="content"></main></div>
+<div id="status"></div>
+<input type="file" id="finp" hidden>
+<div id="toasts"></div>
+</body>
+</html>

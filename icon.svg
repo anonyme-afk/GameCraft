@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="vortexBg" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#1e1b2e"/>
+      <stop offset="100%" stop-color="#0a0c13"/>
+    </radialGradient>
+    <linearGradient id="roseAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185"/>
+      <stop offset="50%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+    <linearGradient id="slateFacet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="glowGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fda4af" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#f43f5e" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#f43f5e" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Container Squircle / Rounded Shield -->
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="url(#vortexBg)" stroke="#272f45" stroke-width="6"/>
+
+  <!-- Inner Geometric Matrix Grid (Subtle Dev/Precision hint) -->
+  <path d="M 120 256 L 392 256 M 256 120 L 256 392" stroke="#1e293b" stroke-width="2" stroke-dasharray="6,6"/>
+
+  <!-- Outer Precision Hexagonal Facet Shell -->
+  <g filter="url(#softShadow)">
+    <!-- Bottom facet -->
+    <polygon points="256,412 144,340 256,364 368,340" fill="#0f172a" opacity="0.9"/>
+    
+    <!-- Left Geometric Wing (Dev & Construction) -->
+    <polygon points="256,104 144,172 144,340 256,268" fill="url(#slateFacet)" stroke="#475569" stroke-width="3"/>
+    
+    <!-- Right Geometric Wing (Creation & Game Engine) -->
+    <polygon points="256,104 368,172 368,340 256,268" fill="#1e293b" stroke="#334155" stroke-width="3"/>
+    
+    <!-- Central Rose Dynamic Core Prism (Intelligence & Ignition chevron) -->
+    <polygon points="256,160 336,212 336,308 256,360 176,308 176,212" fill="url(#roseAccent)"/>
+    
+    <!-- Precision Core Inset Angle (Play/Arrow/Chevron vector symbol) -->
+    <polygon points="256,200 304,276 256,252 208,276" fill="#ffffff" opacity="0.95"/>
+    <polygon points="256,252 304,276 256,328 208,276" fill="#881337" opacity="0.6"/>
+
+    <!-- Subtle Glass Specular Line -->
+    <path d="M 256 160 L 176 212 L 256 268" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+  </g>
+</svg>

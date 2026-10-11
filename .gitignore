@@ -1,0 +1,29 @@
+# Dépendances
+node_modules/
+
+# Secrets — ne JAMAIS committer
+.env
+
+# Sorties de build electron-builder
+release/
+dist/
+
+# Artefacts de développement locaux
+build-desktop/
+
+# Fichiers temporaires d'audit / de build
+_extracted.js
+_extracted.css
+_audit.js
+_build.bat
+build.out.log
+build.err.log
+
+# Systèmes
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,10 @@
+'use strict';
+/* ============ ressources ============ */
+const TYPES={model3d:['Modèle 3D',['glb','gltf','obj']],image:['Image',['png','jpg','jpeg','webp','gif','svg']],texture:['Texture',['png','jpg','jpeg','webp']],sound:['Son',['wav','ogg','mp3']],music:['Musique',['mp3','ogg','wav']],animation:['Animation',['json','gif','png','glb']]};
+function assetsHTML(p,mini){const as=Object.entries(p.files).filter(([,f])=>f.t==='bin');if(!as.length)return '<div class="empty">Aucune ressource. Importe des fichiers (images, sons, modèles…) ou glisse-les ici.</div>';
+ const card=([path,f])=>{const m=f.m||'';return `<div class="acard"><div class="th">${m.startsWith('image/')?`<img src="${f.d}" alt="">`:m.startsWith('audio/')?`<audio controls src="${f.d}"></audio>`:`<span class="ext">.${esc(ext(path)||'?')}</span>`}</div><div class="in"><b title="${esc(path)}">${esc(path)}</b><span class="dim">${fmtSize(f.size||0)}</span></div><div class="bt"><button class="ib" data-act="copyPath" data-p="${esc(path)}" title="Copier le chemin">${ico('copy')}</button><button class="ib" data-act="openFile" data-p="${esc(path)}" title="Ouvrir">${ico('files')}</button><button class="ib" data-act="delAsset" data-p="${esc(path)}" title="Supprimer">${ico('trash')}</button></div></div>`};
+ return mini?as.map(card).join(''):`<div class="agrid">${as.map(card).join('')}</div>`}
+async function validateAsset(a,formats){const e=ext(a.name);const problems=[];if(formats.length&&!formats.includes(e))problems.push(`Format « .${e} » non prévu (attendu : ${formats.join(', ')}).`);
+ if(a.t==='bin'&&a.m.startsWith('image/')){const ok=await new Promise(r=>{const i=new Image();i.onload=()=>r(true);i.onerror=()=>r(false);i.src=a.d});if(!ok)problems.push("L'image ne peut pas être décodée (fichier corrompu ?).")}
+ else if(a.t==='bin'&&a.m.startsWith('audio/')){const ok=await new Promise(r=>{const au=new Audio();const t=setTimeout(()=>r(true),3000);au.onloadedmetadata=()=>{clearTimeout(t);r(true)};au.onerror=()=>{clearTimeout(t);r(false)};au.src=a.d});if(!ok)problems.push("Le son ne peut pas être lu par le navigateur.")}
+ return problems}
