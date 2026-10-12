@@ -31,7 +31,7 @@ const A={
  copyPath:el=>{navigator.clipboard?.writeText(el.dataset.p).then(()=>toast('Chemin copié.'),()=>toast(el.dataset.p))},
  delAsset:async el=>{const p=S.view==='assets'?PROJ.find(x=>x.id===S.asel):S.project;const path=el.dataset.p;const r=await modal({title:'Supprimer la ressource',html:`<p>Supprimer <code>${esc(path)}</code> ?</p>`,ok:'Supprimer',danger:true});if(!r)return;delete p.files[path];await DB.put(p);if(S.view==='assets')drawAssets();else{touch();renderSide()}},
  test:el=>testProvider(el.dataset.k),useProv:el=>{ST.active=el.dataset.k;saveSettings();renderSettings($('#content'));updateStatus()},
- pickModel:el=>{ST.p[el.dataset.k].model=el.dataset.m;saveSettings();renderSettings($('#content'));renderTestUI(el.dataset.k);updateStatus()},
+ pickModel:el=>{const k=el.dataset.k;ST.p[k].model=el.dataset.m;ST.active=k;saveSettings();renderSettings($('#content'));renderTestUI(k);updateStatus()},
  themeSet:el=>{ST.theme=el.dataset.t;document.documentElement.dataset.theme=ST.theme;saveSettings();renderSettings($('#content'));updateStatus()},
  edWrap:()=>{ST.editor.wrap=!ST.editor.wrap;saveSettings();renderEditor();renderSettings($('#content'))}};
 Object.assign(A,{

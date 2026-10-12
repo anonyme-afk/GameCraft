@@ -528,7 +528,7 @@ async function homeSend(){if(S.creating)return;const txt=S.hp.trim();
  const step=async(i,fn)=>{cr.steps[i].st='run';drawCreate();try{const r=await fn();cr.steps[i].st='ok';drawCreate();return r}catch(e){cr.steps[i].st='err';cr.steps[i].msg=e.message;cr.err=e.message;drawCreate();throw e}};
  try{let p;
   await step(0,async()=>{if(!txt)throw new Error("Décris d'abord le jeu que tu veux créer.");if(txt.length<5)throw new Error('La demande est trop courte pour être exploitée.')});
-  await step(1,async()=>{const k=ST.active;if(!provOK(k))throw new Error("Aucun modèle d'IA n'est configuré pour le fournisseur actif. Ouvre les paramètres.");if(k==='ollama'){const ac=new AbortController(),to=setTimeout(()=>ac.abort(),6000);try{const r=await jf(ST.p.ollama.base.replace(/\/$/,'')+'/api/tags',{signal:ac.signal});const names=(r.models||[]).map(m=>m.name);if(!names.includes(ST.p.ollama.model)&&!names.includes(ST.p.ollama.model+':latest'))throw new Error(`Le modèle « ${ST.p.ollama.model} » n'est pas installé dans Ollama.`)}catch(e){throw e.message.startsWith('Le modèle')?e:new Error(friendlyError(e,'ollama'))}finally{clearTimeout(to)}}});
+  await step(1,async()=>{let k=ST.active;if(!provOK(k)){const alt=Object.keys(PROV).find(provOK);if(!alt)throw new Error("Aucun modèle d'IA n'est configuré pour le fournisseur actif. Ouvre les paramètres.");ST.active=k=alt;saveSettings()}if(k==='ollama'){const ac=new AbortController(),to=setTimeout(()=>ac.abort(),6000);try{const r=await jf(ST.p.ollama.base.replace(/\/$/,'')+'/api/tags',{signal:ac.signal});const names=(r.models||[]).map(m=>m.name);if(!names.includes(ST.p.ollama.model)&&!names.includes(ST.p.ollama.model+':latest'))throw new Error(`Le modèle « ${ST.p.ollama.model} » n'est pas installé dans Ollama.`)}catch(e){throw e.message.startsWith('Le modèle')?e:new Error(friendlyError(e,'ollama'))}finally{clearTimeout(to)}}});
   await step(2,async()=>{p=newProject(nameFrom(txt),S.kind,txt);await DB.put(p)});
   await step(3,async()=>{const q=(await DB.all()).find(x=>x.id===p.id);if(!q||!q.files['index.html'])throw new Error('Le projet a été créé mais ses fichiers sont illisibles.')});
   await step(4,async()=>{S.hp='';await openProject(p)});S.creating=null;
@@ -592,7 +592,7 @@ const A={
  copyPath:el=>{navigator.clipboard?.writeText(el.dataset.p).then(()=>toast('Chemin copié.'),()=>toast(el.dataset.p))},
  delAsset:async el=>{const p=S.view==='assets'?PROJ.find(x=>x.id===S.asel):S.project;const path=el.dataset.p;const r=await modal({title:'Supprimer la ressource',html:`<p>Supprimer <code>${esc(path)}</code> ?</p>`,ok:'Supprimer',danger:true});if(!r)return;delete p.files[path];await DB.put(p);if(S.view==='assets')drawAssets();else{touch();renderSide()}},
  test:el=>testProvider(el.dataset.k),useProv:el=>{ST.active=el.dataset.k;saveSettings();renderSettings($('#content'));updateStatus()},
- pickModel:el=>{ST.p[el.dataset.k].model=el.dataset.m;saveSettings();renderSettings($('#content'));renderTestUI(el.dataset.k);updateStatus()},
+ pickModel:el=>{const k=el.dataset.k;ST.p[k].model=el.dataset.m;ST.active=k;saveSettings();renderSettings($('#content'));renderTestUI(k);updateStatus()},
  themeSet:el=>{ST.theme=el.dataset.t;document.documentElement.dataset.theme=ST.theme;saveSettings();renderSettings($('#content'));updateStatus()},
  edWrap:()=>{ST.editor.wrap=!ST.editor.wrap;saveSettings();renderEditor();renderSettings($('#content'))}};
 Object.assign(A,{
