@@ -57,5 +57,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     backend: () => ipcRenderer.invoke('secure:backend'),
     encrypt: (value) => ipcRenderer.invoke('secure:encrypt', value),
     decrypt: (stored) => ipcRenderer.invoke('secure:decrypt', stored)
+  },
+
+  // Architecture d'adaptateurs de moteurs (capacités + détection installés)
+  engines: {
+    list: () => ipcRenderer.invoke('engines:list'),
+    detect: () => ipcRenderer.invoke('engines:detect')
   }
 });

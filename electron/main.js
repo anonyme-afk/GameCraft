@@ -483,6 +483,14 @@ ipcMain.handle('engine:stopGodot', () => {
   return false;
 });
 
+// ---- Architecture d'adaptateurs multi-moteurs (§2) ----
+// Chaque moteur déclare ses capacités réelles ; l'UI n'affiche que ce qui existe.
+const engines = require('./lib/engines/registry');
+const engineDetect = require('./lib/engines/detect');
+
+ipcMain.handle('engines:list', () => engines.describeAll());
+ipcMain.handle('engines:detect', () => engineDetect.detectAll());
+
 // ---- Coffre-fort des clés API (chiffrement au repos via le coffre-fort OS) ----
 // L'interface ne manipule jamais une clé en clair sur disque : elle demande au
 // processus principal de la chiffrer avant stockage, et de la déchiffrer à la

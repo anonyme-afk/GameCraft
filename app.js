@@ -126,7 +126,10 @@ const safeName=n=>n.replace(/[^\w.\-]+/g,'_');
 function uniquePath(p,path){if(!p.files[path])return path;const m=path.match(/^(.*?)(\.[^./]*)?$/);let i=2,np;do{np=m[1]+'-'+i+(m[2]||'');i++}while(p.files[np]);return np}
 async function openProject(p){S.project=p;const ui=p.ui||{};S.tabs=(ui.tabs||[]).filter(t=>p.files[t]);S.active=p.files[ui.active]?ui.active:(S.tabs[0]||null);if(!S.tabs.length){const f=p.files['main.gd']?'main.gd':p.files['game.js']?'game.js':Object.keys(p.files).find(k=>p.files[k].t==='text');if(f){S.tabs=[f];S.active=f}}S.logs=[];S.rtErr=[];S.out=[];S.sel=null;S.save='ok';S.view='workspace';ST.last=p.id;saveSettings();render()}
 async function closeProject(){await flushSave();S.project=null;S.view='home';render()}
-async function createProjectFromDialog(){const r=await modal({title:'Nouveau projet',fields:[{k:'name',label:'Nom du projet',value:'Mon jeu'},{k:'kind',label:'Type',type:'select',value:'2d',opts:[['2d','2D (Canvas)'],['3d','3D (Three.js)'],['godot','Godot Engine 4 (GDScript)']]}],ok:'Créer'});if(!r||!r.name.trim())return;const p=newProject(r.name.trim(),r.kind);try{await DB.put(p);if(window.electronAPI?.fs){await window.electronAPI.fs.saveProjectToDisk(p)}}catch(e){toast('Création impossible : '+e.message,'err');return}await refreshProjects();openProject(p)}
+async function createProjectFromDialog(){const opts=[['2d','HTML5 — 2D (Canvas)'],['3d','HTML5 — 3D (Three.js)'],['godot','Godot Engine 4 (GDScript)'],['unity','Unity (fichiers de projet)'],['unreal','Unreal Engine (fichiers de projet)']];const r=await modal({title:'Nouveau projet',fields:[{k:'name',label:'Nom du projet',value:'Mon jeu'},{k:'kind',label:'Moteur / méthode',type:'select',value:'2d',opts}],ok:'Créer'});if(!r||!r.name.trim())return;let p;const k=r.kind;
+  if(k==='unity'||k==='unreal'){const sc=engineScaffold(k,r.name.trim());if(!sc){toast('Moteur inconnu.','err');return}p={id:uid(),name:r.name.trim(),type:sc.type,created:Date.now(),updated:Date.now(),files:sc.files,chat:[],history:[],prompt:''};toast('Projet '+ENGINE_NAMES[k]+' créé : ouvre-le avec l\'éditeur pour compiler.','info')}
+  else p=newProject(r.name.trim(),k);
+  try{await DB.put(p);if(window.electronAPI?.fs){await window.electronAPI.fs.saveProjectToDisk(p)}}catch(e){toast('Création impossible : '+e.message,'err');return}await refreshProjects();openProject(p)}
 
 /* ===== 06-fichiers-du-projet.js ===== */
 /* ============ fichiers du projet ============ */
@@ -538,7 +541,7 @@ const CATS=[['general','Général'],['ia','Intelligence artificielle'],['editor'
 function setIA(){const card=k=>{const x=ST.p[k];const f=(l,fld,type='text',ph='')=>`<div class="row"><label>${l}</label><input class="inp" type="${type}" data-prov="${k}" data-f="${fld}" value="${esc(x[fld]||'')}" placeholder="${ph}" autocomplete="off" spellcheck="false"${fld==='model'?` list="dl-${k}"`:''}></div>`;
   const hint={ollama:"Ollama doit tourner sur ta machine. Pour autoriser cette page, démarre-le avec la variable OLLAMA_ORIGINS=* puis redémarre-le.",openai:"Fonctionne avec OpenAI et tout service compatible (adresse de base modifiable). Le service doit autoriser les appels depuis un navigateur (CORS).",anthropic:"Les appels partent directement de ton navigateur vers l'API Anthropic.",gemini:"Les appels partent directement de ton navigateur vers l'API Gemini."}[k];
   return `<div class="card"><h3>${PROV[k].name}${k===ST.active?' <span class="chip">actif</span>':''}</h3><div class="dim" style="margin-bottom:10px;font-size:12px">${hint}</div>${k==='ollama'||k==='openai'||k==='lmstudio'?f('Adresse de base','base','text',k==='lmstudio'?'http://localhost:1234/v1':'http://localhost:11434'):''}${k!=='ollama'?f('Clé API','key','password','Colle ta clé ici'):''}${f('Modèle','model','text','nom du modèle (teste la connexion pour voir la liste)')}<datalist id="dl-${k}">${(S.tests[k]?.models||[]).map(m=>`<option value="${esc(m)}">`).join('')}</datalist><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="test" data-k="${k}">Tester la connexion</button>${k!==ST.active?`<button class="btn" data-act="useProv" data-k="${k}">Utiliser ce fournisseur</button>`:''}${k!=='ollama'&&x.key?`<button class="btn dng" data-act="delKey" data-k="${k}">Supprimer la clé</button>`:''}</div><div id="st-${k}"></div><div class="mlist" id="ml-${k}"></div></div>`};
- return `<h2>Intelligence artificielle</h2><div class="dim" style="margin:6px 0 16px">Choisis un fournisseur, saisis ta clé, teste la connexion, puis sélectionne un modèle. Le fournisseur actif sert pour les nouveaux projets et pour le chat.</div>${Object.keys(PROV).map(card).join('')}<div class="card"><h3>Limites d'envoi à l'IA</h3><div class="row"><label>Contexte (caractères)</label><input class="inp" type="number" min="2000" step="1000" data-g="ctx" value="${ST.ctx}"></div><div class="row"><label>Tokens de sortie max</label><input class="inp" type="number" min="512" step="512" data-g="maxTok" value="${ST.maxTok}"></div><div class="row"><label>Ollama : num_ctx</label><input class="inp" type="number" min="1024" step="1024" data-g="numCtx" value="${ST.numCtx}"></div><div class="dim" style="font-size:12px">Sur une machine modeste, garde un contexte court : plus le projet est gros, plus un modèle local est lent.</div></div>${ST.dev?`<div class="card"><h3>Mode développeur</h3><label style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><input type="checkbox" data-s="dev"${ST.dev?' checked':''}> Activer le mode développeur</label><div class="dim" style="font-size:12px;margin-bottom:10px">Hyperparamètres envoyés au modèle. Laisse vide pour utiliser le réglage du fournisseur. Ces valeurs s'appliquent selon ce que l'API prend en charge.</div><div class="row"><label>Température</label><input class="inp" type="number" step="0.1" min="0" max="2" data-g="hp.temperature" value="${ST.hp.temperature??''}"></div><div class="row"><label>Top-p</label><input class="inp" type="number" step="0.05" min="0" max="1" data-g="hp.topP" value="${ST.hp.topP??''}"></div><div class="row"><label>Frequency penalty</label><input class="inp" type="number" step="0.1" min="-2" max="2" data-g="hp.freqPenalty" value="${ST.hp.freqPenalty??''}"></div><div class="row"><label>Presence penalty</label><input class="inp" type="number" step="0.1" min="-2" max="2" data-g="hp.presPenalty" value="${ST.hp.presPenalty??''}"></div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" data-act="devLogs">Voir les logs HTTP (latence, tokens)</button></div><div id="dev-last" class="dim" style="font-size:11.5px;margin-top:8px"></div></div>`:`<div class="card"><h3>Mode développeur</h3><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-s="dev"${ST.dev?' checked':''}> Activer le mode développeur (prompts bruts, logs HTTP, hyperparamètres, endpoints personnalisés)</label></div>`}`}
+ return `<h2>Intelligence artificielle</h2><div class="dim" style="margin:6px 0 16px">Choisis un fournisseur, saisis ta clé, teste la connexion, puis sélectionne un modèle. Le fournisseur actif sert pour les nouveaux projets et pour le chat.</div>${Object.keys(PROV).map(card).join('')}<div class="card"><h3>Limites d'envoi à l'IA</h3><div class="row"><label>Contexte (caractères)</label><input class="inp" type="number" min="2000" step="1000" data-g="ctx" value="${ST.ctx}"></div><div class="row"><label>Tokens de sortie max</label><input class="inp" type="number" min="512" step="512" data-g="maxTok" value="${ST.maxTok}"></div><div class="row"><label>Ollama : num_ctx</label><input class="inp" type="number" min="1024" step="1024" data-g="numCtx" value="${ST.numCtx}"></div><div class="dim" style="font-size:12px">Sur une machine modeste, garde un contexte court : plus le projet est gros, plus un modèle local est lent.</div></div>${ST.dev?`<div class="card"><h3>Mode développeur</h3><label style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><input type="checkbox" data-s="dev"${ST.dev?' checked':''}> Activer le mode développeur</label><div class="dim" style="font-size:12px;margin-bottom:10px">Hyperparamètres envoyés au modèle. Laisse vide pour utiliser le réglage du fournisseur. Ces valeurs s'appliquent selon ce que l'API prend en charge.</div><div class="row"><label>Température</label><input class="inp" type="number" step="0.1" min="0" max="2" data-g="hp.temperature" value="${ST.hp.temperature??''}"></div><div class="row"><label>Top-p</label><input class="inp" type="number" step="0.05" min="0" max="1" data-g="hp.topP" value="${ST.hp.topP??''}"></div><div class="row"><label>Frequency penalty</label><input class="inp" type="number" step="0.1" min="-2" max="2" data-g="hp.freqPenalty" value="${ST.hp.freqPenalty??''}"></div><div class="row"><label>Presence penalty</label><input class="inp" type="number" step="0.1" min="-2" max="2" data-g="hp.presPenalty" value="${ST.hp.presPenalty??''}"></div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" data-act="devLogs">Voir les logs HTTP (latence, tokens)</button></div><div id="dev-last" class="dim" style="font-size:11.5px;margin-top:8px"></div></div>`:`<div class="card"><h3>Mode développeur</h3><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-s="dev"${ST.dev?' checked':''}> Activer le mode développeur (prompts bruts, logs HTTP, hyperparamètres, endpoints personnalisés)</label></div>`}${enginesCard()}`}
 function setGeneral(){return `<h2>Général</h2><div class="card" style="margin-top:14px"><h3>Thème</h3><div class="seg"><button data-act="themeSet" data-t="light" class="${ST.theme==='light'?'on':''}">Clair</button><button data-act="themeSet" data-t="dark" class="${ST.theme==='dark'?'on':''}">Sombre</button></div></div><div class="card"><h3>Au démarrage</h3><div class="dim">Le logiciel s'ouvre sur l'accueil. Le dernier projet utilisé est signalé dans la liste des projets.</div></div><div class="card"><h3>Raccourcis clavier</h3><table class="kt">${Object.values(CMD).filter(x=>x.k).map(x=>`<tr><td>${x.t}</td><td><span class="kbd">${x.k}</span></td></tr>`).join('')}</table></div><button class="btn" data-act="cmd" data-c="resetLayout">Rétablir la disposition par défaut</button>`}
 function setEditor(){return `<h2>Éditeur</h2><div class="card" style="margin-top:14px"><div class="row"><label>Taille de police</label><input class="inp" type="number" min="10" max="24" data-e="fs" value="${ST.editor.fs}"></div><div class="row"><label>Largeur d'indentation</label><input class="inp" type="number" min="1" max="8" data-e="tab" value="${ST.editor.tab}"></div><div class="row"><label>Retour à la ligne</label><label style="display:flex;gap:8px;align-items:center;justify-self:start"><input type="checkbox" data-act="edWrap"${ST.editor.wrap?' checked':''}> Couper les longues lignes</label></div><div class="dim" style="font-size:12px">Avec le retour à la ligne, les longues lignes de code s'enroulent au lieu de dépasser horizontalement ; les numéros de ligne suivent. La police de code est « Cascadia Code », « JetBrains Mono » ou la police monospace du système.</div></div><div class="card"><h3>Fonctions de l'éditeur</h3><div class="dim">Coloration (JS, CSS, HTML, JSON), numéros de ligne, indentation automatique, recherche et remplacement (Ctrl+F), annulation et rétablissement, enregistrement automatique, détection des erreurs de syntaxe JS et des JSON invalides dans le panneau Problèmes. Pas d'autocomplétion ni de navigation vers les définitions dans cette version.</div></div>`}
 function setEngines(){const isDesk=!!window.electronAPI?.isDesktop;return `<h2>Moteurs</h2><div class="card" style="margin-top:14px"><h3>HTML5 : Canvas 2D et Three.js 3D</h3><div class="stt ok" style="margin:0 0 6px">Intégré et actif</div><div class="dim">Le jeu s'exécute dans l'aperçu du studio. Les projets 2D utilisent Canvas, les projets 3D utilisent Three.js (chargé depuis Internet). La scène est décrite dans <code>scene.json</code>, exposée au jeu sous <code>window.SCENE</code>, et pilote le panneau Scène du studio.</div></div><div class="card"><h3>Godot Engine 4</h3><div class="stt ${isDesk?'ok':'warn'}" style="margin:0 0 6px">${isDesk?'Intégration desktop active':'Disponible en mode desktop'}</div><div class="dim">GameCraft Studio génère l'architecture native Godot 4 (<code>project.godot</code>, scripts <code>.gd</code>, scènes <code>.tscn</code>). Sur cette version de bureau, vous pouvez lancer directement le jeu avec votre exécutable Godot local et suivre les journaux en direct dans la console.</div>${isDesk?`<div style="margin-top:10px;display:flex;gap:8px"><button class="btn sm" data-act="detectGodot">Vérifier l'exécutable Godot</button><button class="btn sm" data-act="openProjDir">Ouvrir le dossier des projets</button></div><div id="godot-status" style="margin-top:8px;font-size:12px"></div>`:''}</div>`}
@@ -898,4 +901,100 @@ async function purgeAllData() {
   try { localStorage.removeItem('studio.settings'); localStorage.removeItem('studio.keys'); } catch {}
   toast("Données supprimées. L'application va redémarrer.", 'info');
   setTimeout(() => location.reload(), 1200);
+}
+
+/* ===== 23-moteurs.js ===== */
+/* ============ moteurs : choix A/B/C et capacités ============ */
+// Miroir du registre d'adaptateurs (electron/lib/engines/registry) pour le
+// renderer, afin que le choix de moteur fonctionne aussi en navigateur pur.
+// Les capacités déclarées ici doivent rester cohérentes avec le backend.
+
+const ENGINE_CAPS = {
+  web:     { createProject:1, readWriteFiles:1, scenes:1, run:1, preview:1, errorCapture:1, export:1, offline:1 },
+  godot:   { createProject:1, readWriteFiles:1, scenes:1, run:1, preview:0, errorCapture:1, export:0, offline:1, requiresExternal:1 },
+  unity:   { createProject:1, readWriteFiles:1, scenes:1, run:0, preview:0, errorCapture:0, export:0, offline:1, requiresExternal:1 },
+  unreal:  { createProject:1, readWriteFiles:1, scenes:0, run:0, preview:0, errorCapture:0, export:0, offline:1, requiresExternal:1 }
+};
+const ENGINE_NAMES = { web:'HTML5 (Canvas / WebGL / Three.js)', godot:'Godot Engine 4', unity:'Unity', unreal:'Unreal Engine' };
+
+// Scaffolds identiques au backend, pour créer un projet jouable hors Electron.
+function engineScaffold(id, name) {
+  if (id === 'web') return {
+    type: '2d',
+    files: {
+      'index.html': { t: 'text', c: `<!DOCTYPE html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>${name}</title>\n<link rel="stylesheet" href="style.css">\n</head>\n<body>\n<canvas id="c"></canvas>\n<script src="game.js"></script>\n</body>\n</html>\n` },
+      'style.css': { t: 'text', c: 'html,body{margin:0;height:100%;background:#11161d;overflow:hidden}\ncanvas{display:block;width:100vw;height:100vh}\n' },
+      'game.js': { t: 'text', c: `// ${name} — moteur sans dépendance (Canvas 2D).\nconst cv=document.getElementById('c'),ctx=cv.getContext('2d');\nfunction resize(){cv.width=innerWidth;cv.height=innerHeight}\naddEventListener('resize',resize);resize();\nlet t=0;\n(function loop(){t++;ctx.clearRect(0,0,cv.width,cv.height);ctx.fillStyle='#E568A0';ctx.beginPath();ctx.arc(cv.width/2+Math.cos(t/40)*80,cv.height/2,30,0,7);ctx.fill();requestAnimationFrame(loop)})();\n` }
+    }
+  };
+  if (id === 'godot') return {
+    type: 'godot',
+    files: {
+      'project.godot': { t: 'text', c: `config_version=5\n\n[application]\n\nconfig/name="${name}"\nrun/main_scene="res://main.tscn"\nconfig/features=PackedStringArray("4.3", "Forward Plus")\n\n[rendering]\n\nrenderer/rendering_method="forward_plus"\n` },
+      'main.gd': { t: 'text', c: `extends Node2D\n\nfunc _ready():\n\tprint("${name} — Godot 4")\n\nfunc _process(delta):\n\tqueue_redraw()\n\nfunc _draw():\n\tdraw_circle(Vector2(240,135), 30, Color(0.9,0.4,0.63))\n` }
+    }
+  };
+  if (id === 'unity') return {
+    type: 'unity',
+    files: {
+      'Assets/Main.cs': { t: 'text', c: `using UnityEngine;\n\npublic class Main : MonoBehaviour\n{\n    void Start() { Debug.Log("${name} démarré (Unity)"); }\n}\n` },
+      'Assets/README.md': { t: 'text', c: `# ${name}\n\nOuvre ce dossier avec Unity Hub (LTS). La compilation se fait dans l'éditeur.\n` }
+    }
+  };
+  if (id === 'unreal') {
+    const uproj = `${name}.uproject`;
+    const files = {};
+    files[uproj] = { t: 'text', c: JSON.stringify({ FileVersion: 3, EngineAssociation: '5.4', Category: 'GameCraft', Modules: [{ Name: name, Type: 'Runtime', LoadingPhase: 'Default' }] }, null, 2) };
+    files['README.md'] = { t: 'text', c: `# ${name}\n\nOuvre ${uproj} avec Unreal Engine 5. La génération C++ se fait dans l'éditeur.\n` };
+    return { type: 'unreal', files };
+  }
+  return null;
+}
+
+// Description lisible d'une capacité, pour l'UI.
+const CAP_LABEL = { createProject:'Créer le projet', readWriteFiles:'Lire/écrire les fichiers', scenes:'Scènes', run:'Lancer le jeu', preview:'Aperçu intégré', errorCapture:'Récupérer les erreurs', export:'Exporter', offline:'Hors-ligne' };
+
+// État d'installation des moteurs (desktop uniquement ; vide en navigateur).
+async function engineStatus() {
+  if (!window.electronAPI?.engines) return null;
+  try { return await window.electronAPI.engines.detect(); } catch { return null; }
+}
+
+// Carte HTML « Moteurs » : capacités déclarées + état d'installation réel.
+// Rendu synchrone depuis les caps locales ; la détection installée est remplie
+// de façon asynchrone juste après (via #engines-detect).
+function enginesCard() {
+  const order = ['web', 'godot', 'unity', 'unreal'];
+  const capKeys = ['createProject', 'readWriteFiles', 'scenes', 'run', 'preview', 'errorCapture', 'export'];
+  const row = (id) => {
+    const caps = ENGINE_CAPS[id];
+    const installed = id === 'web' ? 'toujours disponible' : (caps.requiresExternal ? 'à installer' : '');
+    const capsHTML = capKeys.map(k =>
+      `<span class="chip" style="opacity:${caps[k] ? 1 : .4}">${caps[k] ? '✓' : '✕'} ${CAP_LABEL[k]}</span>`).join(' ');
+    return `<div style="display:flex;flex-direction:column;gap:6px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:8px"><b>${ENGINE_NAMES[id]}</b><span class="dim" style="font-size:11px" id="eng-st-${id}">${installed}</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">${capsHTML}</div>
+    </div>`;
+  };
+  return `<div class="card"><h3>Moteurs & méthodes de création</h3>
+    <div class="dim" style="font-size:12px;margin-bottom:8px">Chaque moteur déclare ce qu'il sait faire réellement. Le choix se fait à la création d'un projet (Fichier → Nouveau projet), ou en laissant l'IA décider.</div>
+    ${order.map(row).join('')}
+    <div class="dim" style="font-size:11.5px;margin-top:8px" id="engines-detect"></div></div>`;
+}
+
+// Remplit l'état d'installation réel une fois la carte affichée (desktop).
+async function refreshEnginesDetect() {
+  const box = $('#engines-detect');
+  if (!box) return;
+  const st = await engineStatus();
+  if (!st) { box.textContent = 'Détection des moteurs disponible dans la version bureau.'; return; }
+  const set = (id, ok, detail) => {
+    const el = $('#eng-st-' + id);
+    if (el) { el.textContent = ok ? ('✓ ' + (detail || 'installé')) : '✕ non installé'; el.style.color = ok ? 'var(--ok)' : 'var(--text2)'; }
+  };
+  set('godot', st.godot.found, st.godot.version ? ('Godot ' + st.godot.version) : 'Godot');
+  set('unity', st.unity.found, st.unity.found ? 'détecté (édition non pilotée)' : '');
+  set('unreal', st.unreal.found, st.unreal.found ? 'détecté (build non automatisé)' : '');
+  const hw = st.hardware || {};
+  box.textContent = `Machine : ${hw.ramGB} Go RAM${hw.gpu ? ' · GPU ' + hw.gpu : ''}.`;
 }
