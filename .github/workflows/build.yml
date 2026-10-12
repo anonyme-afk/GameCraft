@@ -33,7 +33,10 @@ jobs:
         run: npm ci
 
       - name: Construire l'installateur Windows (.exe)
-        run: npm run dist
+        # --publish never : empêche electron-builder de tenter une publication
+        # GitHub automatique (il détecte le tag v1.0.0 et réclame GH_TOKEN).
+        # C'est l'étape softprops ci-dessous qui publie la Release.
+        run: npm run dist -- --publish never
         env:
           # Distribution locale : on coupe la signature de code pour éviter le
           # téléchargement/extraction de winCodeSign (inutile et lent en CI).
