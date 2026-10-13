@@ -15,7 +15,7 @@ const ext=p=>(p.match(/\.([^./]+)$/)||[])[1]?.toLowerCase()||'';
 const IC={home:'<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',folder:'<path d="M3 6h6l2 2h10v11H3z"/>',box:'<path d="M12 3l9 5v8l-9 5-9-5V8zM3 8l9 5 9-5M12 13v8"/>',settings:'<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',files:'<path d="M6 3h8l4 4v14H6zM14 3v4h4"/>',search:'<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>',history:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',play:'<path d="M7 4l13 8-13 8z"/>',stop:'<rect x="6" y="6" width="12" height="12"/>',send:'<path d="M4 12l16-8-6 16-3-7z"/>',clip:'<path d="M20 11l-8 8a5 5 0 01-7-7l9-9a3 3 0 014 4l-9 9a1 1 0 01-2-2l8-8"/>',plus:'<path d="M12 5v14M5 12h14"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',trash:'<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/>',code:'<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>',edit:'<path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/>',copy:'<rect x="8" y="8" width="12" height="12"/><path d="M16 8V4H4v12h4"/>',refresh:'<path d="M20 11a8 8 0 10-2 6M20 4v7h-7"/>',split:'<rect x="3" y="4" width="18" height="16"/><path d="M12 4v16"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',dl:'<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>'};
 const ico=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
 
-IC.undo='<path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/>';IC.redo='<path d="M15 14l5-5-5-5M20 9H10a6 6 0 000 12h3"/>';IC.image='<rect x="3" y="4" width="18" height="16"/><circle cx="9" cy="10" r="2"/><path d="M3 18l6-5 4 3 3-2 5 4"/>';IC.layers='<path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/>';
+IC.undo='<path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/>';IC.redo='<path d="M15 14l5-5-5-5M20 9H10a6 6 0 000 12h3"/>';IC.image='<rect x="3" y="4" width="18" height="16"/><circle cx="9" cy="10" r="2"/><path d="M3 18l6-5 4 3 3-2 5 4"/>';IC.layers='<path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/>';IC.fs='<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>';
 
 /* ===== 02-parametres.js ===== */
 /* ============ paramètres ============ */
@@ -409,7 +409,7 @@ async function applyParsed(am,P,prompt){const p=S.project,changes=[];let skipped
  if(dels.length&&!ST.sec.allowAIDelete){am.note=(am.note?am.note+' ':'')+'Suppression de fichiers par l\'IA désactivée dans les paramètres : '+dels.length+' demande(s) ignorée(s).';dels.length=0}
  if(dels.length){const ok=await modal({title:"L'IA demande de supprimer des fichiers",html:'<p>Fichiers concernés :</p><ul>'+dels.map(d=>`<li><code>${esc(d)}</code></li>`).join('')+"</ul><p class=\"dim\">Tu pourras annuler via l'historique.</p>",ok:'Supprimer',cancel:'Refuser',danger:true});if(ok)for(const d of dels)changes.push({path:d,before:p.files[d].c,after:null});else am.note='Suppression refusée.'}
  for(const c of changes){const d=diffLines(c.before,c.after);c.add=d.filter(x=>x.t==='+').length;c.del=d.filter(x=>x.t==='-').length;c.isNew=c.before===null;c.deleted=c.after===null;if(c.after===null)delete p.files[c.path];else p.files[c.path]={t:'text',c:c.after};if(c.after===null){S.tabs=S.tabs.filter(t=>t!==c.path);if(S.active===c.path)S.active=S.tabs[0]||null}}
- if(changes.length){const h={id:uid(),t:Date.now(),prompt,changes:changes.map(c=>({path:c.path,before:c.before,after:c.after}))};p.history.push(h);if(p.history.length>40)p.history.shift();am.hid=h.id;am.changes=changes.map(c=>({path:c.path,add:c.add,del:c.del,isNew:c.isNew,deleted:c.deleted}));for(const c of changes)if(c.after!==null&&!S.tabs.includes(c.path)&&changes.length<=3)S.tabs.push(c.path);if(!S.active)S.active=S.tabs[0]||null;if(S.view==='workspace')setTimeout(runGame,50)}
+ if(changes.length){const h={id:uid(),t:Date.now(),prompt,changes:changes.map(c=>({path:c.path,before:c.before,after:c.after}))};p.history.push(h);if(p.history.length>40)p.history.shift();am.hid=h.id;am.changes=changes.map(c=>({path:c.path,add:c.add,del:c.del,isNew:c.isNew,deleted:c.deleted}));for(const c of changes)if(c.after!==null&&!S.tabs.includes(c.path)&&S.tabs.length<8)S.tabs.push(c.path);if(!S.active)S.active=S.tabs[0]||null;if(S.view==='workspace')setTimeout(runGame,50)}
  if(P.partial)am.note=(am.note?am.note+' ':'')+`Réponse tronquée : le fichier « ${P.partial} » est incomplet et a été ignoré (augmente la limite de tokens dans les paramètres).`;
  if(skipped)am.note=(am.note?am.note+' ':'')+skipped+' fichier(s) ignoré(s) (chemin invalide ou fichier binaire).';
  am.needs=P.needs.map(n=>({...n,state:''}));
@@ -481,11 +481,11 @@ const CMD={
  toggleChat:{t:'Afficher / masquer le chat IA',k:'Ctrl+Alt+B',f:()=>{ST.layout.chat=!ST.layout.chat;applyLayout();saveSettings();renderActivity()}},
  toggleSide:{t:'Afficher / masquer le panneau droit',k:'Ctrl+B',f:()=>{ST.layout.side=!ST.layout.side;applyLayout();saveSettings();renderActivity()}},
  toggleBottom:{t:'Afficher / masquer le panneau bas',k:'Ctrl+J',f:()=>{ST.layout.bottom=!ST.layout.bottom;applyLayout();saveSettings();if(ST.layout.bottom)renderBottom()}},
- modeCode:{t:'Vue : code seul',f:()=>setMode('code')},modeSplit:{t:'Vue : code et aperçu',f:()=>setMode('split')},modePreview:{t:'Vue : aperçu seul',f:()=>setMode('preview')},
+ modeCode:{t:'Vue : code seul',f:()=>setMode('code')},modeSplit:{t:'Vue : code et aperçu',f:()=>setMode('split')},modePreview:{t:'Vue : aperçu seul',f:()=>setMode('preview')},pvFull:{t:"Plein écran de l'aperçu",k:'F11',f:()=>pvFullscreen()},
  theme:{t:'Basculer thème clair / sombre',f:toggleTheme},resetLayout:{t:'Rétablir la disposition par défaut',f:()=>{ST.layout=JSON.parse(JSON.stringify(DEF.layout));saveSettings();if(S.view==='workspace')render();toast('Disposition rétablie.')}},
  search:{t:'Rechercher dans le projet',k:'Ctrl+Maj+F',f:()=>sideTab('search')},quickOpen:{t:'Ouvrir un fichier…',k:'Ctrl+P',f:()=>palette('file')},palette:{t:'Palette de commandes',k:'Ctrl+K',f:()=>palette('cmd')},find:{t:'Rechercher dans le fichier',k:'Ctrl+F',f:()=>{const fb=$('#findbar');if(!fb)return;fb.hidden=false;const q=$('#fq');const ta=$('#ta');const sel=ta&&ta.value.slice(ta.selectionStart,ta.selectionEnd);if(sel&&!sel.includes('\n'))q.value=sel;q.focus();q.select();findNext(0)}}};
-const WSONLY=new Set(['save','run','reload','stop','newFile','openFolder','exportHtml','closeProject','toggleChat','toggleSide','toggleBottom','modeCode','modeSplit','modePreview','search','quickOpen','find','resetLayout']);
-const MENUS=[['Fichier',['newProject','newFile','save','openFolder','exportHtml','closeProject']],['Affichage',['toggleChat','toggleSide','toggleBottom','modeCode','modeSplit','modePreview','theme','resetLayout','palette']],['Exécuter',['run','reload','stop']],['Aller à',['quickOpen','search','goHome','goProjects','goAssets','goSettings']]];
+const WSONLY=new Set(['save','run','reload','stop','newFile','openFolder','exportHtml','closeProject','toggleChat','toggleSide','toggleBottom','modeCode','modeSplit','modePreview','pvFull','search','quickOpen','find','resetLayout']);
+const MENUS=[['Fichier',['newProject','newFile','save','openFolder','exportHtml','closeProject']],['Affichage',['toggleChat','toggleSide','toggleBottom','modeCode','modeSplit','modePreview','pvFull','theme','resetLayout','palette']],['Exécuter',['run','reload','pvFull','stop']],['Aller à',['quickOpen','search','goHome','goProjects','goAssets','goSettings']]];
 function closeMenus(){$$('.mi.open').forEach(m=>{m.classList.remove('open');$('.dd',m)?.remove()})}
 function palette(mode){$('#pal')?.remove();const o=document.createElement('div');o.className='ovl';o.id='pal';o.innerHTML='<div class="dlg"><input id="pq" placeholder="'+(mode==='file'?'Nom du fichier…':'Tape une commande…')+'" autocomplete="off"><div id="pallist"></div></div>';document.body.appendChild(o);
  const all=mode==='file'?Object.keys(S.project?.files||{}).map(p=>({t:p,f:()=>openFile(p)})):Object.entries(CMD).filter(([id])=>S.view==='workspace'||!WSONLY.has(id)).map(([,c])=>c);let items=[],sel=0;
@@ -499,6 +499,29 @@ function palette(mode){$('#pal')?.remove();const o=document.createElement('div')
 function toggleTheme(){ST.theme=ST.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=ST.theme;saveSettings();updateStatus();if(S.view==='settings')renderSettings($('#content'))}
 function setMode(m){ST.layout.mode=m;applyLayout();saveSettings();renderVModes()}
 function renderVModes(){const v=$('#vmodes');if(!v)return;v.innerHTML=[['code','Code seul','code'],['split','Code et aperçu','split'],['preview','Aperçu seul','play']].map(([m,t,i])=>`<button class="ib${ST.layout.mode===m?' on':''}" data-act="cmd" data-c="mode${m[0].toUpperCase()+m.slice(1)}" title="${t}">${ico(i)}</button>`).join('')}
+// Vrai plein écran : l'aperçu occupe tout l'écran par-dessus l'interface (API native).
+// Repli sur le mode « aperçu seul » si le navigateur/OS refuse le plein écran.
+function pvFullscreen(on){
+  const el=$('#pvpane')||$('#pvframe');
+  const fsEl=document.fullscreenElement||document.webkitFullscreenElement;
+  if(on===undefined)on=!fsEl;
+  try{
+    if(on){
+      const req=el.requestFullscreen||el.webkitRequestFullscreen;
+      if(!req){setMode('preview');toast('Plein écran indisponible ici — aperçu seul activé.','warn');return}
+      Promise.resolve(req.call(el)).catch(()=>{setMode('preview')});
+    }else if(fsEl){
+      const ex=document.exitFullscreen||document.webkitExitFullscreen;
+      if(ex)Promise.resolve(ex.call(document)).catch(()=>{});
+    }
+  }catch(_){ if(on)setMode('preview'); }
+  paintPvFS();
+}
+// Met à jour l'état visuel du bouton plein écran selon l'état réel du document.
+function paintPvFS(){const b=$('#pvfs');if(!b)return;const on=!!(document.fullscreenElement||document.webkitFullscreenElement);b.classList.toggle('on',on);b.title=on?'Quitter le plein écran (Échap)':'Plein écran de l\'aperçu (F11)'}
+addEventListener('fullscreenchange',paintPvFS);
+addEventListener('webkitfullscreenchange',paintPvFS);
+
 function applyLayout(){const w=$('#ws');if(!w)return;const L=ST.layout;w.style.setProperty('--chatW',L.chatW+'px');w.style.setProperty('--sideW',L.sideW+'px');w.style.setProperty('--bottomH',L.bottomH+'px');
  $('#chatp').hidden=!L.chat;$('[data-r=chat]').hidden=!L.chat;$('#sidep').hidden=!L.side;$('[data-r=side]').hidden=!L.side;$('#bottomp').hidden=!L.bottom;$('[data-r=bottom]').hidden=!L.bottom;
  $('#edpane').hidden=L.mode==='preview';$('#pvpane').hidden=L.mode==='code';$('[data-r=split]').hidden=L.mode!=='split';$('#edpane').style.flexGrow=L.mode==='split'?L.split:1;$('#pvpane').style.flexGrow=L.mode==='split'?1-L.split:1;renderVModes()}
@@ -552,7 +575,7 @@ function renderSettings(c){const keep=c.querySelector('.setbody')?.scrollTop||0;
 function buildWorkspace(c){const menus=MENUS.map(([n],i)=>`<div class="mi"><button data-act="menu" data-i="${i}">${n}</button></div>`).join('');
  c.innerHTML=`<div id="ws"><div id="menubar">${menus}<span class="mname" id="pname"></span><span class="dim" id="sname" style="margin-left:10px"></span><div class="sp"></div><button class="ib" data-act="undo" title="Annuler (Ctrl+Z)">${ico('undo')}</button><button class="ib" data-act="redo" title="Rétablir (Ctrl+Maj+Z)">${ico('redo')}</button><button class="btn sm" data-act="cmd" data-c="save" title="Enregistrer (Ctrl+S)">Enregistrer</button><span class="engine" id="eng"></span><button class="btn sm pri" data-act="cmd" data-c="run" title="Lancer (Ctrl+Entrée)">${ico('play')} Lancer</button><button class="btn sm" data-act="cmd" data-c="stop">${ico('stop')} Arrêter</button></div>
  <div id="wsbody"><div id="chatp"><div class="ph2"><span>Assistant IA</span><div class="sp"></div>${modelSelect('cmodel')}</div><div id="chatmsgs" data-drop="chat"></div><div class="cin" data-drop="chat"><div id="catts" class="atts" style="padding:0"></div><textarea id="cin" placeholder="Demande une modification… (Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne)"></textarea><div class="cb"><button class="btn sm" data-act="attach" title="Joindre des fichiers">${ico('clip')}</button><div class="sp"></div><button class="btn pri" id="csend" data-act="chatSend">${ico('send')} Envoyer</button></div></div></div><div class="rz v" data-r="chat"></div>
- <div id="center"><div id="tabrow"><div id="tabs"></div><div id="vmodes"></div></div><div id="workarea"><div id="edpane"></div><div class="rz v" data-r="split"></div><div id="pvpane"><div class="pvbar"><span>Aperçu</span><span class="dim" id="pvstatus">Pas encore lancé</span><div class="sp"></div><button class="ib" data-act="cmd" data-c="reload" title="Lancer ou recharger">${ico('refresh')}</button><button class="ib" data-act="cmd" data-c="stop" title="Arrêter">${ico('stop')}</button></div><iframe id="pvframe" title="Aperçu du jeu" sandbox="allow-scripts allow-pointer-lock allow-modals allow-forms" allow="autoplay; fullscreen; gamepad"></iframe></div></div><div class="rz h" data-r="bottom"></div><div id="bottomp"></div></div>
+ <div id="center"><div id="tabrow"><div id="tabs"></div><div id="vmodes"></div></div><div id="workarea"><div id="edpane"></div><div class="rz v" data-r="split"></div><div id="pvpane"><div class="pvbar"><span>Aperçu</span><span class="dim" id="pvstatus">Pas encore lancé</span><div class="sp"></div><button class="ib" data-act="cmd" data-c="reload" title="Lancer ou recharger">${ico('refresh')}</button><button class="ib" id="pvfs" data-act="cmd" data-c="pvFull" title="Plein écran de l'aperçu (F11)">${ico('fs')}</button><button class="ib" data-act="cmd" data-c="stop" title="Arrêter">${ico('stop')}</button></div><iframe id="pvframe" title="Aperçu du jeu" sandbox="allow-scripts allow-pointer-lock allow-modals allow-forms" allow="autoplay; fullscreen; gamepad"></iframe></div></div><div class="rz h" data-r="bottom"></div><div id="bottomp"></div></div>
  <div class="rz v" data-r="side"></div><div id="sidep"><div class="sh" id="shbar"></div><div id="sidebody"></div></div></div></div>`;
  $('#pname').textContent=S.project.name;$('#eng').textContent=S.project.type==='godot'?'Godot Engine 4 (GDScript)':S.project.type==='3d'?'HTML5, Three.js (3D)':'HTML5, Canvas (2D)';updateTop();applyLayout();renderChat(true);renderTabs();renderEditor();renderSide();if(ST.layout.bottom)renderBottom();renderAtts();
  const ci=$('#cin');ci.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();A.chatSend()}};setBusy(S.busy);setTimeout(runGame,60)}
@@ -566,7 +589,7 @@ const A={
  devLogs:async()=>{if(!DEV||!DEV.log.length){const el=$('#dev-last');if(el)el.textContent='Aucun appel pour le moment. Envoie un message à l\'IA puis reviens.';return}const l=DEV.last||DEV.log[DEV.log.length-1];const cost=l.kind==='ok'&&estCost?estCost(l.prov,l.inTok,l.outTok):null;await modal({title:'Dernier appel IA (mode dev)',wide:true,noCancel:true,ok:'Fermer',html:`<div class="dim" style="margin-bottom:8px">Fournisseur <b>${esc(l.prov)}</b>${l.inTok!=null?` · entrée ≈ <b>${l.inTok}</b> tokens`:''}${l.outTok!=null?` · sortie ≈ <b>${l.outTok}</b> tokens`:''}${l.ms!=null?` · latence <b>${l.ms} ms</b>`:''}${cost!=null?` · coût estimé <b>$${cost.toFixed(5)}</b>`:''}</div><div class="diff">${esc(JSON.stringify(l,null,1))}</div>`})},
  nav:el=>nav(el.dataset.v),cmd:el=>{closeMenus();CMD[el.dataset.c]?.f()},
  menu:el=>{const mi=el.parentElement,was=mi.classList.contains('open');closeMenus();if(was)return;mi.classList.add('open');const dd=document.createElement('div');dd.className='dd';dd.innerHTML=MENUS[+el.dataset.i][1].map(id=>`<button data-act="cmd" data-c="${id}"><span>${esc(CMD[id].t)}</span><span class="k">${CMD[id].k||''}</span></button>`).join('');mi.appendChild(dd)},
- sideBtn:el=>{const t=el.dataset.t;if(S.view==='workspace'&&ST.layout.side&&S.rt===t&&el.closest('#activity')){CMD.toggleSide.f();return}sideTab(t)},
+ sideBtn:el=>{const t=el.dataset.t;if(S.view==='workspace'&&ST.layout.side&&S.rt===t){CMD.toggleSide.f();return}sideTab(t)},
  tab:el=>{if(S.active===el.dataset.p)return;captureEd();S.active=el.dataset.p;renderTabs();renderEditor();renderSide(true);saveSoon()},closeTab:el=>closeTab(el.dataset.p),
  openFile:el=>openFile(el.dataset.p),toggle:el=>{const p=el.dataset.p;S.collapsed.has(p)?S.collapsed.delete(p):S.collapsed.add(p);renderSide()},
  gotoRes:el=>openFile(el.dataset.p,+el.dataset.l),newFile:createFile,importHere:()=>pickFiles(f=>importFiles(f,'assets')),
@@ -648,6 +671,8 @@ addEventListener('keydown',e=>{const c=e.ctrlKey||e.metaKey,k=e.key.toLowerCase(
  else if(c&&e.altKey&&k==='b'&&S.view==='workspace'){e.preventDefault();CMD.toggleChat.f()}
  else if(c&&k==='b'&&S.view==='workspace'&&!e.altKey){e.preventDefault();CMD.toggleSide.f()}
  else if(c&&k==='j'&&S.view==='workspace'){e.preventDefault();CMD.toggleBottom.f()}
+  else if(e.key==='F11'&&S.view==='workspace'){e.preventDefault();pvFullscreen()}
+  else if(e.key==='Escape'&&(document.fullscreenElement||document.webkitFullscreenElement)){pvFullscreen(false)}
  else if(e.key==='Escape'){closeMenus();closeCtx()}});
 addEventListener('beforeunload',e=>{if(S.save==='dirty'){flushSave();e.preventDefault();e.returnValue=''}});
 addEventListener('error',e=>{try{toast('Erreur interne : '+e.message,'err')}catch{}});
@@ -779,6 +804,8 @@ function friendlyErrorRich(e, k) {
     const n = (PROV[k] || { name: k }).name;
     if (e.status === 401 || e.status === 403) return `${n} : clé API invalide ou expirée (${e.status}). Mets à jour la clé dans les paramètres.`;
     if (e.status === 429) return `${n} : limite de requêtes atteinte (429). Attends quelques instants avant de réessayer.`;
+    if (e.status === 503) return `${n} : le modèle est momentanément surchargé (503). L'application a déjà réessayé automatiquement. Patiente une minute puis renvoie ta demande, ou choisis un autre modèle dans les paramètres.`;
+    if (e.status >= 500) return `${n} : le serveur du fournisseur est indisponible (${e.status}). Réessaie dans un instant.`;
   }
   return friendlyError(e, k);
 }

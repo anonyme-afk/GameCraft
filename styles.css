@@ -1,5 +1,5 @@
 
-:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Inter,system-ui,"Segoe UI",Roboto,sans-serif;--mono:"SF Mono","Cascadia Code","JetBrains Mono",Consolas,"DejaVu Sans Mono",monospace;--r:8px;--r-sm:6px;--r-lg:12px;--shadow-ctl:0 1px 2px rgba(0,0,0,.16);--shadow-pop:0 12px 40px rgba(0,0,0,.24);--shadow-win:0 24px 70px rgba(0,0,0,.42);--ease:cubic-bezier(.4,0,.2,1);--dur:.16s;--blur:saturate(180%) blur(20px)}
+:root{--font:"Segoe UI",-apple-system,BlinkMacSystemFont,system-ui,Roboto,"Helvetica Neue",sans-serif;--mono:"Cascadia Code","Cascadia Mono","SF Mono",Consolas,"DejaVu Sans Mono",monospace;--r:4px;--r-sm:3px;--r-lg:6px;--shadow-ctl:0 1px 2px rgba(0,0,0,.24);--shadow-pop:0 8px 24px rgba(0,0,0,.36);--shadow-win:0 16px 48px rgba(0,0,0,.5);--ease:cubic-bezier(.25,.1,.25,1);--dur:.12s;--blur:saturate(120%) blur(12px)}
 [data-theme=light]{--bg:#F5F5F7;--editor:#FFFFFF;--panel:rgba(246,246,248,.85);--surf:#EBEBF0;--border:#D9D9DE;--text:#1D1D1F;--text2:#86868B;--accent:#C83E78;--sel:#FBE7F1;--onacc:#FFFFFF;--danger:#D70015;--ok:#248A3D;--warn:#B25000;--tk-c:#8E8E93;--tk-s:#A24A00;--tk-k:#C83E78;--tk-n:#0A68BB;--tk-t:#3E8E7E;color-scheme:light}
 [data-theme=dark]{--bg:#1D1D1F;--editor:#232325;--panel:rgba(40,40,43,.85);--surf:#3A3A3C;--border:#3A3A3C;--text:#F5F5F7;--text2:#98989D;--accent:#E568A0;--sel:#4A2739;--onacc:#18181B;--danger:#FF6961;--ok:#30D158;--warn:#FF9F0A;--tk-c:#98989D;--tk-s:#E8A87C;--tk-k:#E568A0;--tk-n:#7FB4F0;--tk-t:#6FCBB4;color-scheme:dark}
 *{box-sizing:border-box}
@@ -14,7 +14,7 @@ code{font-family:var(--mono);font-size:12px;background:var(--surf);padding:1px 5
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;border:2px solid transparent;background-clip:content-box}::-webkit-scrollbar-thumb:hover{background:var(--text2);background-clip:content-box;border:2px solid transparent}::-webkit-scrollbar-corner{background:transparent}
 *{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 #top{flex:1;display:flex;min-height:0}
-#activity{width:48px;flex:none;background:var(--panel);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:stretch;padding:6px 0;gap:2px}
+#activity{width:48px;flex:none;background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:stretch;padding:6px 0;gap:2px}
 .ab{height:40px;display:grid;place-items:center;color:var(--text2);background:none;border:0;border-left:2px solid transparent;cursor:pointer;border-radius:0;transition:color var(--dur) var(--ease)}
 .ab:hover{color:var(--text)}.ab.on{color:var(--accent);border-left-color:var(--accent)}
 .ab svg{width:20px;height:20px}.asep{height:1px;background:var(--border);margin:4px 10px}
@@ -184,3 +184,25 @@ table.kt{border-collapse:collapse;width:100%}table.kt td{padding:3px 0;border-bo
 .ai-badge{display:inline-flex;align-items:center;gap:4px;margin-right:4px;padding:1px 7px;border:1px solid var(--border);border-radius:99px;color:var(--text2);font-size:10.5px;font-weight:600;letter-spacing:.2px;background:var(--surf)}
 .ai-badge svg{width:13px;height:13px;flex:none}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ============================================================
+   FINITION « PRINCIPES VS CODE » appliqués à l'identité GameCraft
+   On garde les BONS réflexes d'ergonomie de VS Code (survols
+   discrets, feedback de survol sur l'activité et les onglets),
+   SANS la barre de statut bleue — l'accent reste le ROSE.
+   ============================================================ */
+
+/* Barre de statut : fond panneau (identité GameCraft), pas de bleu.
+   Les items gardent un feedback de survol net et discret. */
+#status .ok{color:var(--ok)}
+#status .err{color:var(--danger)}
+#status .busy{color:var(--text);font-weight:600}
+#status button{border-radius:var(--r-sm)}
+#status button:hover{background:var(--surf);color:var(--text)}
+
+/* Activity bar : fond très subtil au survol de l'icône (principe VS Code) */
+.ab:hover{background:rgba(127,127,127,.14)}
+.ab.on{background:rgba(127,127,127,.10)}
+
+/* Onglets de fichiers : fond subtil au survol d'un onglet inactif */
+.tab:hover{background:rgba(127,127,127,.12)}
