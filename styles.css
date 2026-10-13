@@ -1,7 +1,11 @@
 
 :root{--font:"Segoe UI",-apple-system,BlinkMacSystemFont,system-ui,Roboto,"Helvetica Neue",sans-serif;--mono:"Cascadia Code","Cascadia Mono","SF Mono",Consolas,"DejaVu Sans Mono",monospace;--r:4px;--r-sm:3px;--r-lg:6px;--shadow-ctl:0 1px 2px rgba(0,0,0,.24);--shadow-pop:0 8px 24px rgba(0,0,0,.36);--shadow-win:0 16px 48px rgba(0,0,0,.5);--ease:cubic-bezier(.25,.1,.25,1);--dur:.12s;--blur:saturate(120%) blur(12px)}
-[data-theme=light]{--bg:#F5F5F7;--editor:#FFFFFF;--panel:rgba(246,246,248,.85);--surf:#EBEBF0;--border:#D9D9DE;--text:#1D1D1F;--text2:#86868B;--accent:#C83E78;--sel:#FBE7F1;--onacc:#FFFFFF;--danger:#D70015;--ok:#248A3D;--warn:#B25000;--tk-c:#8E8E93;--tk-s:#A24A00;--tk-k:#C83E78;--tk-n:#0A68BB;--tk-t:#3E8E7E;color-scheme:light}
-[data-theme=dark]{--bg:#1D1D1F;--editor:#232325;--panel:rgba(40,40,43,.85);--surf:#3A3A3C;--border:#3A3A3C;--text:#F5F5F7;--text2:#98989D;--accent:#E568A0;--sel:#4A2739;--onacc:#18181B;--danger:#FF6961;--ok:#30D158;--warn:#FF9F0A;--tk-c:#98989D;--tk-s:#E8A87C;--tk-k:#E568A0;--tk-n:#7FB4F0;--tk-t:#6FCBB4;color-scheme:dark}
+/* ============================================================
+   PALETTE OFFICIELLE VS CODE (Dark+ / Dark VS + Light+)
+   Valeurs exactes extraites des thèmes par défaut Microsoft.
+   ============================================================ */
+[data-theme=light]{--bg:#F3F3F3;--editor:#FFFFFF;--panel:#F8F8F8;--surf:#FFFFFF;--border:#E0E0E0;--text:#3B3B3B;--text2:#616161;--accent:#005FB8;--sel:#E5EBF1;--onacc:#FFFFFF;--danger:#F14C4C;--ok:#388A34;--warn:#BF8803;--tk-c:#008000;--tk-s:#A31515;--tk-k:#0000FF;--tk-n:#098658;--tk-t:#267F99;--panel-title:#F3F3F3;--tab-inactive:#ECECEC;--activity-bg:#2C2C2C;color-scheme:light}
+[data-theme=dark]{--bg:#1F1F1F;--editor:#1E1E1E;--panel:#181818;--surf:#252526;--border:#2B2B2B;--text:#CCCCCC;--text2:#9D9D9D;--accent:#0E639C;--sel:#04395E;--onacc:#FFFFFF;--danger:#F14C4C;--ok:#89D185;--warn:#CCA700;--tk-c:#6A9955;--tk-s:#CE9178;--tk-k:#569CD6;--tk-n:#B5CEA8;--tk-t:#4EC9B0;--panel-title:#181818;--tab-inactive:#2D2D2D;--activity-bg:#333333;color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%;margin:0}
@@ -14,7 +18,7 @@ code{font-family:var(--mono);font-size:12px;background:var(--surf);padding:1px 5
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;border:2px solid transparent;background-clip:content-box}::-webkit-scrollbar-thumb:hover{background:var(--text2);background-clip:content-box;border:2px solid transparent}::-webkit-scrollbar-corner{background:transparent}
 *{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 #top{flex:1;display:flex;min-height:0}
-#activity{width:48px;flex:none;background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:stretch;padding:6px 0;gap:2px}
+#activity{width:48px;flex:none;background:var(--activity-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:stretch;padding:6px 0;gap:2px}
 .ab{height:40px;display:grid;place-items:center;color:var(--text2);background:none;border:0;border-left:2px solid transparent;cursor:pointer;border-radius:0;transition:color var(--dur) var(--ease)}
 .ab:hover{color:var(--text)}.ab.on{color:var(--accent);border-left-color:var(--accent)}
 .ab svg{width:20px;height:20px}.asep{height:1px;background:var(--border);margin:4px 10px}
@@ -140,9 +144,12 @@ table.kt{border-collapse:collapse;width:100%}table.kt td{padding:3px 0;border-bo
 .sres{padding:4px 10px;cursor:pointer;font:12px var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sres:hover{background:var(--surf)}.sres b{font-family:var(--font)}
 .hent{padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px}.hent .t{color:var(--text2)}.hent .a{display:flex;gap:4px;margin-top:4px}
 .mini{padding:6px}.mini .acard{margin-bottom:6px}.mini .th{height:60px}
-#status{height:22px;flex:none;display:flex;align-items:center;gap:14px;padding:0 12px;background:var(--panel);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-top:1px solid var(--border);color:var(--text2);font-size:11.5px}
-#status .ok{color:var(--ok)}#status .err{color:var(--danger)}#status .busy{color:var(--accent)}
-#status button{background:none;border:0;color:inherit;cursor:pointer;padding:0;font-size:inherit}#status button:hover{color:var(--text)}
+/* Barre de statut — SIGNATURE VS CODE : fond bleu #007ACC (dark) / #005FB8 (light) */
+[data-theme=dark]{--status-bg:#007ACC;--status-fg:#FFFFFF}
+[data-theme=light]{--status-bg:#005FB8;--status-fg:#FFFFFF}
+#status{height:22px;flex:none;display:flex;align-items:center;gap:14px;padding:0 12px;background:var(--status-bg);border-top:0;color:var(--status-fg);font-size:11.5px;font-variant-numeric:tabular-nums}
+#status .ok{color:#B5F0B5}#status .err{color:#FFCFCF}#status .busy{color:#FFFFFF;font-weight:600}
+#status button{background:none;border:0;color:inherit;cursor:pointer;padding:0 5px;font-size:inherit;height:20px;display:inline-flex;align-items:center;border-radius:2px;transition:background .1s}#status button:hover{background:rgba(255,255,255,.18);color:#fff}
 /* overlays */
 .ovl{position:fixed;inset:0;background:rgba(0,0,0,.36);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:grid;place-items:start center;padding-top:12vh;z-index:100;animation:ovlIn .18s var(--ease)}
 @keyframes ovlIn{from{opacity:0}to{opacity:1}}
@@ -186,23 +193,36 @@ table.kt{border-collapse:collapse;width:100%}table.kt td{padding:3px 0;border-bo
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
 /* ============================================================
-   FINITION « PRINCIPES VS CODE » appliqués à l'identité GameCraft
-   On garde les BONS réflexes d'ergonomie de VS Code (survols
-   discrets, feedback de survol sur l'activité et les onglets),
-   SANS la barre de statut bleue — l'accent reste le ROSE.
+   FINITION « IDENTITÉ VS CODE » complète
+   Palette officielle Microsoft appliquée de bout en bout :
+   activity bar gris foncé, barre de statut bleue, onglets,
+   sélections et survols conformes au thème Dark+/Light+.
    ============================================================ */
 
-/* Barre de statut : fond panneau (identité GameCraft), pas de bleu.
-   Les items gardent un feedback de survol net et discret. */
-#status .ok{color:var(--ok)}
-#status .err{color:var(--danger)}
-#status .busy{color:var(--text);font-weight:600}
-#status button{border-radius:var(--r-sm)}
-#status button:hover{background:var(--surf);color:var(--text)}
+/* Barre de statut bleue : items lisibles (vert clair / rouge clair),
+   survol éclairci conforme aux items de statusbar VS Code. */
+#status .ok{color:#B5F0B5}
+#status .err{color:#FFCFCF}
+#status .busy{color:#FFFFFF;font-weight:600}
+#status button:hover{background:rgba(255,255,255,.18);color:#fff}
 
-/* Activity bar : fond très subtil au survol de l'icône (principe VS Code) */
-.ab:hover{background:rgba(127,127,127,.14)}
-.ab.on{background:rgba(127,127,127,.10)}
+/* Activity bar : icônes en blanc sur fond gris foncé (#333),
+   indicateur actif à gauche (bordure bleue VS Code), survol éclairci. */
+#activity .ab{color:rgba(255,255,255,.55)}
+#activity .ab:hover{color:#FFFFFF;background:rgba(255,255,255,.10)}
+#activity .ab.on{color:#FFFFFF;border-left-color:var(--accent)}
+[data-theme=dark] #activity .ab.on{border-left-color:#007ACC}
+[data-theme=light] #activity .ab.on{border-left-color:#005FB8}
+#activity .asep{background:rgba(255,255,255,.16)}
+/* Libellés de nav (barre élargie) sur activity bar sombre */
+#activity.lnav .nv{color:rgba(255,255,255,.65)}
+#activity.lnav .nv:hover{background:rgba(255,255,255,.10);color:#FFFFFF}
+#activity.lnav .nv.on{background:var(--sel);color:#FFFFFF}
+[data-theme=light] #activity.lnav .nv.on{color:#FFFFFF}
 
-/* Onglets de fichiers : fond subtil au survol d'un onglet inactif */
-.tab:hover{background:rgba(127,127,127,.12)}
+/* Onglets de fichiers : fond inactif gris VS Code, survol éclairci,
+   onglet actif sur fond éditeur avec liseré supérieur bleu. */
+.tab:hover{background:rgba(255,255,255,.07)}
+.tab.on{border-top:1px solid var(--accent)}
+[data-theme=dark] .tab.on{border-top-color:#007ACC}
+[data-theme=light] .tab.on{border-top-color:#005FB8}
